@@ -24,9 +24,40 @@ jobs:
         run: |
           python -m venv venv
           source venv/bin/activate
-          pip install -r requirements.txt
+          pip install --upgrade pip
+          pip install -r requirements.txt pytest
 
       - name: Run tests
         run: |
           source venv/bin/activate
           pytest tests/
+
+  docker-test:
+    needs: test  # Only run if tests pass
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build Docker image
+        run: |
+          docker build -t fastapi-test-app .
+
+      - name: Run Docker container
+        run: |
+          docker run -d -p 8000:8000 --name fastapi-test-container fastapi-test-app
+
+      - name: Wait for container to start
+        run: |
+          sleep 5  # Wait for the server to start
+          docker ps  # Verify container is running
+
+      - name: Health check API root
+        run: |
+          curl --retry 5 --retry-delay 2 --fail http://localhost:8000/ || (docker logs fastapi-test-container && exit 1)
+
+      - name: Stop and clean up container
+        if: always()
+        run: |
+          docker stop fastapi-test-container
+          docker rm fastapi-test-container
