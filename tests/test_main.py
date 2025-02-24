@@ -1,12 +1,14 @@
 import pytest
-from httpx import AsyncClient
-from fakeredis import FakeRedis
-from app.main import app, get_redis
+import asyncio
 from fastapi.testclient import TestClient
+from fakeredis.aioredis import FakeRedis
+from app.main import app, get_redis
+
 
 @pytest.fixture
 def test_client():
     return TestClient(app)
+
 
 # tests the FastAPI / route
 def test_read_main(test_client):
@@ -24,7 +26,8 @@ Uses pytest.mark.asyncio because FastAPI's Redis functions are asynchronous.
 async def redis_mock():
     redis_client = FakeRedis(decode_responses=True)
     await redis_client.flushdb()  # Ensure it's empty before tests
-    return redis_client
+    yield redis_client  # ✅ Yield instead of return
+    await redis_client.flushdb()  # Cleanup after test
 
 
 # Override the get_redis dependency in tests
@@ -35,17 +38,19 @@ def override_redis(redis_mock):
 
 @pytest.mark.asyncio
 async def test_set_and_get_key(test_client, override_redis):
-    response = test_client.post("/set/", params={"key": "username", "value": "JohnDoe"})
-    assert response.status_code == 200
-    assert response.json() == {"message": "Key 'username' set successfully"}
+    async with test_client as client:
+        response = await client.post("/set/", params={"key": "username", "value": "JohnDoe"})
+        assert response.status_code == 200
+        assert response.json() == {"message": "Key 'username' set successfully"}
 
-    response = test_client.get("/get/username")
-    assert response.status_code == 200
-    assert response.json() == {"key": "username", "value": "JohnDoe"}
+        response = await client.get("/get/username")
+        assert response.status_code == 200
+        assert response.json() == {"key": "username", "value": "JohnDoe"}
 
 
 @pytest.mark.asyncio
 async def test_get_nonexistent_key(test_client, override_redis):
-    response = test_client.get("/get/nonexistent")
-    assert response.status_code == 200
-    assert response.json() == {"error": "Key not found"}
+    async with test_client as client:
+        response = await client.get("/get/nonexistent")
+        assert response.status_code == 200
+        assert response.json() == {"error": "Key not found"}
