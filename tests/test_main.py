@@ -1,13 +1,14 @@
 import pytest
 import asyncio
-from fastapi.testclient import TestClient
+from httpx import AsyncClient
 from fakeredis.aioredis import FakeRedis
 from app.main import app, get_redis
 
 
 @pytest.fixture
-def test_client():
-    return TestClient(app)
+async def test_client():
+    async with AsyncClient(app=app, base_url="http://test") as client:
+        yield client
 
 
 # tests the FastAPI / route
@@ -38,19 +39,17 @@ def override_redis(redis_mock):
 
 @pytest.mark.asyncio
 async def test_set_and_get_key(test_client, override_redis):
-    async with test_client as client:
-        response = await client.post("/set/", params={"key": "username", "value": "JohnDoe"})
-        assert response.status_code == 200
-        assert response.json() == {"message": "Key 'username' set successfully"}
+    response = await test_client.post("/set/", params={"key": "username", "value": "JohnDoe"})
+    assert response.status_code == 200
+    assert response.json() == {"message": "Key 'username' set successfully"}
 
-        response = await client.get("/get/username")
-        assert response.status_code == 200
-        assert response.json() == {"key": "username", "value": "JohnDoe"}
+    response = await test_client.get("/get/username")
+    assert response.status_code == 200
+    assert response.json() == {"key": "username", "value": "JohnDoe"}
 
 
 @pytest.mark.asyncio
 async def test_get_nonexistent_key(test_client, override_redis):
-    async with test_client as client:
-        response = await client.get("/get/nonexistent")
-        assert response.status_code == 200
-        assert response.json() == {"error": "Key not found"}
+    response = await test_client.get("/get/nonexistent")
+    assert response.status_code == 200
+    assert response.json() == {"error": "Key not found"}
