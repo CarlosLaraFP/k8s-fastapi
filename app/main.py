@@ -5,6 +5,8 @@ from fastapi import FastAPI
 app = FastAPI()
 
 # Get Redis connection details from environment variables
+# FastAPI connects to Redis using the redis-service name, which CoreDNS resolves to a ClusterIP.
+# Then, kube-proxy in each worker node routes requests to an available Redis pod IP (based on Selector rules).
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")  # Default to localhost for local dev
 REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
 
