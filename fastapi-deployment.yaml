@@ -1,16 +1,14 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: Deployment  # stateless (different services should have different deployments)
 metadata:
   name: fastapi-deployment
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: fastapi
   template:
     metadata:
+      name: fastapi-pod
       labels:
         app: fastapi
+        type: stateless
     spec:
       containers:
       - name: fastapi
@@ -18,3 +16,14 @@ spec:
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8000
+        resources:
+          requests:
+            cpu: "250m"   # Request 0.25 CPU cores
+            memory: "128Mi"  # Request 128MB RAM
+          limits:
+            cpu: "500m"   # Limit to 0.5 CPU cores
+            memory: "256Mi"  # Limit to 256MB RAM
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fastapi
