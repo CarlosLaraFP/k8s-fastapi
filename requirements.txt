@@ -1,6 +1,7 @@
 fastapi
 uvicorn
 redis
-pytest 
-httpx 
+pytest
+pytest-asyncio
+httpx
 fakeredis[async]
