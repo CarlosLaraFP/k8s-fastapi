@@ -23,8 +23,8 @@ Uses pytest.mark.asyncio because FastAPI's Redis functions are asynchronous.
 @pytest.fixture
 async def redis_mock():
     redis_client = FakeRedis(decode_responses=True)
-    yield redis_client
-    await redis_client.flushdb()
+    await redis_client.flushdb()  # Ensure it's empty before tests
+    return redis_client
 
 
 # Override the get_redis dependency in tests
