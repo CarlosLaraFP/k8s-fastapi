@@ -33,7 +33,7 @@ def override_redis(redis_mock):
 
 @pytest.mark.asyncio
 async def test_set_and_get_key(override_redis):
-    async with AsyncClient(app=app, base_url="http://test") as client:
+    async with AsyncClient(app, base_url="http://test") as client:
         # Set a key
         response = await client.post("/set/", params={"key": "username", "value": "JohnDoe"})
         assert response.status_code == 200
@@ -47,7 +47,7 @@ async def test_set_and_get_key(override_redis):
 
 @pytest.mark.asyncio
 async def test_get_nonexistent_key(override_redis):
-    async with AsyncClient(app=app, base_url="http://test") as client:
+    async with AsyncClient(app, base_url="http://test") as client:
         response = await client.get("/get/nonexistent")
         assert response.status_code == 200
         assert response.json() == {"error": "Key not found"}
