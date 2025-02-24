@@ -3,6 +3,10 @@ kind: Deployment  # stateless (different services should have different deployme
 metadata:
   name: fastapi-deployment
 spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fastapi
   template:
     metadata:
       name: fastapi-pod
@@ -23,7 +27,8 @@ spec:
           limits:
             cpu: "500m"   # Limit to 0.5 CPU cores
             memory: "256Mi"  # Limit to 256MB RAM
-  replicas: 1
-  selector:
-    matchLabels:
-      app: fastapi
+        env:  # environment variables
+        - name: REDIS_HOST
+          value: "redis-service"  # Service name from redis-deployment.yaml
+        - name: REDIS_PORT
+          value: "6379"  # Port from redis-deployment.yaml

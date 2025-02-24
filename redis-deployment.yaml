@@ -36,7 +36,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: redis-service  # Exposes Redis inside the Kubernetes cluster
+  name: redis-service  # Exposes Redis inside the Kubernetes cluster (ClusterIP)
 spec:
   selector:
     app: redis
