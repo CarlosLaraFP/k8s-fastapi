@@ -4,19 +4,6 @@ from httpx import AsyncClient
 from fakeredis.aioredis import FakeRedis
 from app.main import app, get_redis
 
-
-@pytest.fixture
-async def test_client():
-    async with AsyncClient(app=app, base_url="http://test") as client:
-        yield client
-
-
-# tests the FastAPI / route
-def test_read_main(test_client):
-    response = test_client.get("/")
-    assert response.status_code == 200
-    assert "message" in response.json()
-
 """
 Uses fakeredis to mock Redis in-memory instead of requiring a real Redis instance.
 app.dependency_overrides[get_redis] = lambda: redis_mock injects a fake Redis instance.
@@ -35,6 +22,18 @@ async def redis_mock():
 @pytest.fixture
 def override_redis(redis_mock):
     app.dependency_overrides[get_redis] = lambda: redis_mock
+
+
+@pytest.fixture
+async def test_client():
+    return AsyncClient(app=app, base_url="http://test")
+
+
+@pytest.mark.asyncio
+async def test_read_main(test_client):
+    response = await test_client.get("/")
+    assert response.status_code == 200
+    assert response.json() == {"message": "Hello, FastAPI running with Redis!"}
 
 
 @pytest.mark.asyncio
