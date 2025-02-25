@@ -3,10 +3,12 @@ kind: Service
 metadata:
   name: fastapi-service
 spec:
-  selector:
-    app: fastapi
+  type: NodePort  # uses Random algorithm for load balancing
   ports:
     - protocol: TCP
       port: 80
       targetPort: 8000
-  type: NodePort
+      nodePort: 30004  # optional
+  selector:
+    app: fastapi  # this is how we connect the service to a specific pod
+    type: stateless

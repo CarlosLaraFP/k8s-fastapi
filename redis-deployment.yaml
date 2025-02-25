@@ -39,9 +39,11 @@ kind: Service
 metadata:
   name: redis-service  # Exposes Redis inside the Kubernetes cluster (ClusterIP)
 spec:
-  selector:
-    app: redis
+  type: ClusterIP  # default
   ports:  # default Redis port is 6379
     - protocol: TCP
       port: 6379
       targetPort: 6379
+  selector:
+    app: redis
+    type: stateful
