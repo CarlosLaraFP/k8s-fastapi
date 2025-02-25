@@ -3,7 +3,12 @@ kind: Deployment  # stateless (different services should have different deployme
 metadata:
   name: fastapi-deployment
 spec:
-  replicas: 1
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0  # Ensure no downtime (0 pods can be unavailable during update)
+      maxSurge: 1        # Allow only 1 extra pod above desired replicas during update
   selector:
     matchLabels:
       app: fastapi
@@ -20,6 +25,18 @@ spec:
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8000
+        readinessProbe:  # Ensure app is ready before marking as available
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:  # Ensure app is healthy, else restart pod
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 10
         resources:
           requests:
             cpu: "250m"   # Request 0.25 CPU cores
