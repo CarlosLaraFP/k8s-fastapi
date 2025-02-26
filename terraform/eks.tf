@@ -33,3 +33,10 @@ resource "aws_eks_node_group" "eks_nodes" {
 
   depends_on = [module.eks]
 }
+
+resource "aws_eks_addon" "aws_load_balancer_controller" {
+  cluster_name      = module.eks.cluster_name
+  addon_name        = "aws-load-balancer-controller"
+  addon_version     = "v2.5.1"  # Ensure latest version
+  service_account_role_arn = aws_iam_role.alb_ingress_controller.arn
+}
