@@ -32,6 +32,23 @@ spec:
       volumes:
         - name: redis-storage
           emptyDir: {}  # Use an emptyDir for temporary storage
+      #nodeSelector:
+      #  size: Large  # node(s) must be labeled prior to creating the pod
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:  # refer to documentation for other values
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: size
+                operator: In  # refer to documentation for other values
+                values:
+                - Large
+                - XLarge
+      tolerations:  # taints that this pod tolerates
+      - key: "database"
+        operator: "Equal"
+        value: "memory"
+        effect: "NoSchedule"
 
 ---
 apiVersion: v1
