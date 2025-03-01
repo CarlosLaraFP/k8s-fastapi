@@ -1,11 +1,16 @@
+# Ignore virtual environment and VS Code settings
 venv/
 .vscode/
-tests/__pycache__/.
-.pytest_cache/
-app/__pycache__/.
+# Ignore compiled Python files and caches
+**/__pycache__/
+**/.pytest_cache/
+**/*.pyc
+**/*.pyo
+# Ignore AWS CLI installer and temporary files
 AWSCLIV2.pkg
 awscliv2.zip
 aws/
+# Ignore Terraform-related files
 terraform/.terraform/
 terraform/.terraform.lock.hcl
 terraform/.terraform.tfstate.lock.info
