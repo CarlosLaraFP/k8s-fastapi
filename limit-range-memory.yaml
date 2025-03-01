@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: LimitRange  # applicable at the namespace level
+metadata:
+  name: memory-resource-constraint
+spec:
+  limits:
+  - default:  # limit
+      memory: "1Gi"
+    defaultRequest:  # request
+      memory: "1Gi"
+    max:
+      memory: "1Gi"
+    min:
+      memory: "500Mi"
+    type: Container

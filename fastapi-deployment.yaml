@@ -38,7 +38,7 @@ spec:
           initialDelaySeconds: 10
           periodSeconds: 10
         resources:
-          requests:
+          requests:  # requests without limits are the most flexible
             cpu: "250m"   # Request 0.25 CPU cores
             memory: "128Mi"  # Request 128MB RAM
           limits:
