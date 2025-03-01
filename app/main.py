@@ -7,17 +7,17 @@ from typing import Callable, List
 app = FastAPI()
 
 type Vector2D[T] = tuple[T, T]
-# Type alias for a function that takes a tuple[T, T] and returns an int
-type VectorFunction[T] = Callable[[Vector2D[T]], int]
+# Type alias for a function that takes a tuple[T, T] and returns the same type T
+type VectorFunction[T] = Callable[[Vector2D[T]], T]
 
 
-def add[T](vector: Vector2D[T]) -> int:
+def add[T](vector: Vector2D[T]) -> T:
     """Adds two numbers."""
     return vector[0] + vector[1]
 
 
 # Generic function that applies an operation on a list of integers
-def reduce_vectors[T](vectors: List[Vector2D[T]], operation: VectorFunction[T]) -> List[int]:
+def reduce_vectors[T](vectors: List[Vector2D[T]], operation: VectorFunction[T]) -> List[T]:
     return [operation(vector) for vector in vectors]
 
 
@@ -41,6 +41,11 @@ async def get_redis():
 @app.get("/")
 def read_root():
     return {"message": "Hello, FastAPI running with Redis!"}
+
+
+@app.get("/health")
+def health_check():
+    return {"status": "ok"}
 
 
 @app.post("/set/")
