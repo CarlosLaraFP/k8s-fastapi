@@ -1,8 +1,25 @@
 import os
 import redis.asyncio as redis
 from fastapi import FastAPI, Depends
+from typing import Callable, List
+
 
 app = FastAPI()
+
+type Vector2D[T] = tuple[T, T]
+# Type alias for a function that takes a tuple[T, T] and returns an int
+type VectorFunction[T] = Callable[[Vector2D[T]], int]
+
+
+def add[T](vector: Vector2D[T]) -> int:
+    """Adds two numbers."""
+    return vector[0] + vector[1]
+
+
+# Generic function that applies an operation on a list of integers
+def reduce_vectors[T](vectors: List[Vector2D[T]], operation: VectorFunction[T]) -> List[int]:
+    return [operation(vector) for vector in vectors]
+
 
 # Get Redis connection details from environment variables.
 # FastAPI connects to Redis using the redis-service name, which CoreDNS resolves to a ClusterIP.
